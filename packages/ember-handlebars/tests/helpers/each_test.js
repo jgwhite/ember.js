@@ -414,6 +414,23 @@ test("it works with the controller keyword", function() {
   equal(view.$().text(), "foobarbaz");
 });
 
+test("it does not clobber other helpers", function() {
+  Ember.Handlebars.helper('upcase', function(string) {
+    return string.toUpperCase();
+  });
+
+  view = Ember.View.create({
+    names: Ember.A(['Tom', 'Yehuda']),
+    template: Ember.Handlebars.compile('{{#each name in view.names}}{{upcase name}}{{/each}}')
+  });
+
+  append(view);
+
+  equal(view.$().text(), 'TOMYEHUDA');
+
+  delete Ember.Handlebars.helpers.upcase;
+});
+
 module("{{#each foo in bar}}", {
   teardown: function() {
     Ember.run(function() {
