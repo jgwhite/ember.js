@@ -142,3 +142,28 @@ test('rejections like jqXHR which have errorThrown property work', function() {
     Ember.testing = wasEmberTesting;
   }
 });
+
+test('rejections for which errorThrown is a string do not cause readonly errors', function() {
+  expect(1);
+
+  var wasEmberTesting = Ember.testing;
+  var wasOnError      = Ember.onerror;
+
+  try {
+    Ember.testing = false;
+    Ember.onerror = function(error) {
+      equal(error, actualError,
+        'expected the actual errorThrown, got "' + error.message + '"');
+    };
+
+    var actualError = 'Some stringy error';
+    var jqXHR = {
+      errorThrown: actualError
+    };
+
+    run(RSVP, 'reject', jqXHR);
+  } finally {
+    Ember.onerror = wasOnError;
+    Ember.testing = wasEmberTesting;
+  }
+});
